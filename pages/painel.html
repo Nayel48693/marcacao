@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barbearia Feitosa | Painel Admin</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="admin-shell">
+        <header class="admin-header">
+          <div>
+            <p class="eyebrow">Painel Administrativo</p>
+            <h1 id="barbeariaNome">Barbearia Feitosa</h1>
+            <p id="usuarioRole">Carregando o teu perfil...</p>
+            <p class="subtext">Olá, <span id="usuarioNome">Administrador</span>. Aqui geres equipa e marcações.</p>
+          </div>
+          <button class="btn btn-secondary" id="btnLogoutPainel">Sair</button>
+        </header>
+
+        <div class="admin-grid">
+          <div class="admin-card card-highlight">
+            <div class="card-header">
+              <p class="eyebrow">Resumo</p>
+              <h2>Visão geral</h2>
+            </div>
+            <div id="estatisticasList" class="stats-grid"></div>
+          </div>
+
+          <div class="admin-card invite-card">
+            <div class="card-header">
+              <p class="eyebrow">Equipa</p>
+              <h2>Convites</h2>
+            </div>
+            <div id="convitesList" class="table-list"></div>
+            <button class="btn btn-primary btn-block" id="btnConvidarFuncionario" type="button">Convidar funcionário</button>
+          </div>
+
+          <div class="admin-card">
+            <div class="card-header">
+              <p class="eyebrow">Marcações</p>
+              <h2>Recentes</h2>
+            </div>
+            <div id="marcacoesList" class="table-list"></div>
+          </div>
+        </div>
+
+        <div id="feedbackPainel" class="feedback" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script type="module" src="../js/painel.js"></script>
+  </body>
+</html>

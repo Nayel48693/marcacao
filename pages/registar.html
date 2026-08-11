@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registar | Barbearia Feitosa</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="form-card">
+        <div class="form-header">
+          <p class="eyebrow">Criar conta</p>
+          <h1>Regista-te</h1>
+          <p>Preenche os passos abaixo para criares a tua conta.</p>
+        </div>
+
+        <div class="steps">
+          <span class="step active" data-step="1">1</span>
+          <span class="step" data-step="2">2</span>
+        </div>
+
+        <form id="registoForm" novalidate>
+          <div class="step-panel active" data-panel="1">
+            <label class="field">
+              <span>Telefone</span>
+              <div class="phone-input">
+                <span class="prefix">+351</span>
+                <input id="telefoneRegisto" type="tel" inputmode="numeric" maxlength="9" placeholder="912345678" required />
+              </div>
+              <small>Utiliza apenas 9 dígitos, começando por 2, 3 ou 9.</small>
+            </label>
+
+            <button class="btn btn-primary btn-block" type="button" id="btnProximo">Continuar</button>
+          </div>
+
+          <div class="step-panel" data-panel="2">
+            <label class="field">
+              <span>Senha</span>
+              <input id="senhaRegisto" type="password" placeholder="Mínimo 6 caracteres" required />
+            </label>
+
+            <label class="field">
+              <span>Confirmar senha</span>
+              <input id="confirmarSenhaRegisto" type="password" placeholder="Repete a senha" required />
+            </label>
+
+            <div id="feedbackSenha" class="feedback subtle"></div>
+            <div id="feedbackRegisto" class="feedback" aria-live="polite"></div>
+
+            <button class="btn btn-primary btn-block" type="submit">Criar conta</button>
+          </div>
+        </form>
+
+        <p class="switch-link">
+          Já tens conta?
+          <a href="login.html">Entrar</a>
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="../js/auth.js"></script>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barbearia Feitosa</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="client-home">
+        <header class="client-home-header">
+          <div class="brand-head">
+            <img class="brand-icon" src="../assets/icon.png" alt="Barbearia Feitosa" />
+            <div>
+              <p class="eyebrow">Barbearia Feitosa</p>
+              <h1>Bem-vindo!</h1>
+              <p>Um espaço moderno para marcações rápidas, perfil de cliente e contacto direto com a barbearia.</p>
+            </div>
+          </div>
+
+          <aside class="profile-summary" id="profileSummary">
+            <div class="profile-summary-card" id="profileSummaryToggle" role="button" tabindex="0" aria-expanded="false">
+              <div class="profile-avatar" id="profileAvatarContainer">
+                <img id="profileAvatar" alt="Foto do perfil" />
+                <span id="profileInitials">BF</span>
+              </div>
+              <div>
+                <p class="eyebrow">Perfil</p>
+                <h2 id="nomePerfil">Cliente</h2>
+                <p class="muted" id="telefonePerfil">+351 000000000</p>
+              </div>
+            </div>
+            <div class="profile-actions" id="profileActions">
+              <a class="btn btn-secondary btn-small" href="./perfil.html" target="_blank">Editar perfil</a>
+              <a class="btn btn-primary btn-small" href="./agendar.html">Fazer nova marcação</a>
+              <button class="btn btn-secondary btn-small" type="button" id="btnLogout">Sair</button>
+            </div>
+          </aside>
+        </header>
+
+        <div class="home-content">
+          <section class="section-card welcome-card">
+            <p class="eyebrow">Informações</p>
+            <h2>Sobre a tua marcação</h2>
+            <p>Marca o serviço ideal, escolhe o horário e guarda os teus contactos para que possas voltar sempre que quiseres.</p>
+            <div class="home-actions">
+              <a class="btn btn-secondary btn-small" href="./marcacoes.html">Ver minhas marcações</a>
+              <a class="btn btn-primary btn-small" href="./agendar.html">Fazer nova marcação</a>
+            </div>
+          </section>
+
+          <section class="section-card about-card">
+            <p class="eyebrow">Siga-nos</p>
+            <h2>Fica conectado</h2>
+            <p>Segue a Barbearia Feitosa no Instagram ou envia uma mensagem pelo WhatsApp para falar com a equipa.</p>
+            <div class="social-links">
+              <a class="social-link" href="https://www.instagram.com/barbearia___feitosa?igsh=Mm8xcXExc2Z6ZXZ6&utm_source=qr" target="_blank" rel="noreferrer">Instagram</a>
+              <a class="social-link" href="https://wa.me/message/5QOHDPG5EIB2B1" target="_blank" rel="noreferrer">WhatsApp</a>
+            </div>
+          </section>
+        </div>
+
+        <footer class="site-footer">
+          <div>
+            <p class="eyebrow">Contato</p>
+            <p>Barbearia Feitosa • Rua do Corte 123 • Lisboa</p>
+            <p>Email: contacto@barbeariafeitosa.pt • Telefone: +351 91 234 5678</p>
+          </div>
+          <div>
+            <p class="eyebrow">Mais informações</p>
+            <p>Horário: Terça a Sábado das 09:00 às 19:00</p>
+            <p>Atendemos por marcação para cortes, barba e grooming premium.</p>
+          </div>
+        </footer>
+      </section>
+    </main>
+
+    <script type="module" src="../js/home.js"></script>
+  </body>
+</html>

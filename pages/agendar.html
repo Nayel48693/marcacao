@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fazer nova marcação | Barbearia Feitosa</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="form-card">
+        <p class="eyebrow">Agendar</p>
+        <h1>Nova marcação</h1>
+        <p>Preenche o formulário abaixo para criar a tua próxima marcação.</p>
+
+        <form id="agendarForm" novalidate>
+          <label class="field">
+            <span>Serviço</span>
+            <select id="servicoAgendar" required>
+              <option value="">A carregar serviços...</option>
+            </select>
+          </label>
+
+          <div class="grid-2">
+            <label class="field">
+              <span>Dia</span>
+              <input id="dataAgendar" type="date" required />
+            </label>
+            <label class="field">
+              <span>Hora</span>
+              <select id="horaAgendar" required>
+                <option value="">Escolhe uma hora</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="feedbackAgendar" class="feedback" aria-live="polite"></div>
+          <button class="btn btn-primary btn-block" type="submit">Confirmar marcação</button>
+          <a class="btn btn-secondary btn-block" href="./home.html">Voltar</a>
+        </form>
+      </section>
+    </main>
+    <script type="module" src="../js/home.js"></script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Perfil | Marcações Barber</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="form-card">
+        <p class="eyebrow">Perfil</p>
+        <h1>Editar perfil</h1>
+        <p>Atualiza o teu nome, telefone e foto de perfil.</p>
+
+        <form id="perfilForm" novalidate>
+          <div class="field">
+            <span>Imagem de perfil</span>
+            <input id="avatarUrl" type="url" placeholder="URL da imagem de perfil" />
+          </div>
+
+          <label class="field">
+            <span>Nome</span>
+            <input id="nomePerfilInput" type="text" placeholder="João Silva" required />
+          </label>
+
+          <label class="field">
+            <span>Telefone</span>
+            <div class="phone-input">
+              <span class="prefix">+351</span>
+              <input id="telefonePerfilInput" type="tel" inputmode="numeric" maxlength="9" placeholder="912345678" required />
+            </div>
+          </label>
+
+          <div id="feedbackPerfil" class="feedback" aria-live="polite"></div>
+          <button class="btn btn-primary btn-block" type="submit">Guardar alterações</button>
+          <a class="btn btn-secondary btn-block" href="./home.html">Cancelar</a>
+        </form>
+      </section>
+    </main>
+    <script type="module" src="../js/home.js"></script>
+  </body>
+</html>
