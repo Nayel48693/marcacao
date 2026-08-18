@@ -14,6 +14,13 @@ const marcacoesList = document.getElementById('marcacoesList');
 const feedbackPainel = document.getElementById('feedbackPainel');
 const btnLogout = document.getElementById('btnLogoutPainel');
 const btnConvidar = document.getElementById('btnConvidarFuncionario');
+const horariosForm = document.getElementById('horariosForm');
+const horarioAberturaInput = document.getElementById('horarioAberturaInput');
+const horarioFechoInput = document.getElementById('horarioFechoInput');
+const intervaloMinutosInput = document.getElementById('intervaloMinutosInput');
+const pausaInicioInput = document.getElementById('pausaInicioInput');
+const pausaFimInput = document.getElementById('pausaFimInput');
+const feedbackHorarios = document.getElementById('feedbackHorarios');
 
 function mostrarFeedback(mensagem, tipo = 'erro') {
   if (!feedbackPainel) return;
@@ -63,6 +70,32 @@ async function aceitarConvite(conviteId) {
   }
 }
 
+// Preenche o formulário de horários com os valores existentes
+async function preencherFormularioHorarios() {
+  try {
+    const barbeariaRef = doc(db, 'barbearias', BARBEARIA_ID);
+    const barbeariaSnap = await getDoc(barbeariaRef);
+
+    if (barbeariaSnap.exists()) {
+      const dados = barbeariaSnap.data();
+      const config = dados.configHorarios || {};
+
+      if (horarioAberturaInput)
+        horarioAberturaInput.value = config.abertura || '09:00';
+      if (horarioFechoInput)
+        horarioFechoInput.value = config.fecho || '18:00';
+      if (intervaloMinutosInput)
+        intervaloMinutosInput.value = config.intervaloMinutos || '60';
+      if (pausaInicioInput)
+        pausaInicioInput.value = config.pausaInicio || '';
+      if (pausaFimInput)
+        pausaFimInput.value = config.pausaFim || '';
+    }
+  } catch (erro) {
+    console.error('Erro ao carregar configuração de horários:', erro);
+  }
+}
+
 async function carregarDadosAdmin(uid) {
   try {
     const userRef = doc(db, 'utilizadores', uid);
@@ -85,6 +118,7 @@ async function carregarDadosAdmin(uid) {
     await carregarResumo();
     await carregarConvites();
     await carregarMarcacoesRecentes();
+    await preencherFormularioHorarios();
   } catch (erro) {
     console.error('Erro ao carregar dados admin:', erro);
     mostrarFeedback('Erro ao carregar o painel. Tenta recarregar a página.', 'erro');
@@ -214,6 +248,84 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (erro) {
       console.error('Erro ao convidar funcionário:', erro);
       mostrarFeedback('Não foi possível enviar o convite.', 'erro');
+    }
+  });
+
+  // Listener para o formulário de horários
+  horariosForm?.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+
+    const abertura = horarioAberturaInput?.value?.trim();
+    const fecho = horarioFechoInput?.value?.trim();
+    const intervaloMinutos = parseInt(intervaloMinutosInput?.value || '60', 10);
+    const pausaInicio = pausaInicioInput?.value?.trim() || '';
+    const pausaFim = pausaFimInput?.value?.trim() || '';
+
+    // Validações
+    if (!abertura || !fecho) {
+      if (feedbackHorarios) {
+        feedbackHorarios.textContent = 'Preenche os campos de abertura e fecho.';
+        feedbackHorarios.className = 'feedback erro';
+      }
+      return;
+    }
+
+    if (abertura >= fecho) {
+      if (feedbackHorarios) {
+        feedbackHorarios.textContent = 'A hora de abertura deve ser antes da hora de fecho.';
+        feedbackHorarios.className = 'feedback erro';
+      }
+      return;
+    }
+
+    if (pausaInicio && pausaFim) {
+      if (pausaInicio >= pausaFim) {
+        if (feedbackHorarios) {
+          feedbackHorarios.textContent = 'O início da pausa deve ser antes do fim da pausa.';
+          feedbackHorarios.className = 'feedback erro';
+        }
+        return;
+      }
+
+      if (pausaInicio < abertura || pausaInicio >= fecho) {
+        if (feedbackHorarios) {
+          feedbackHorarios.textContent = 'O início da pausa deve estar entre a abertura e fecho.';
+          feedbackHorarios.className = 'feedback erro';
+        }
+        return;
+      }
+
+      if (pausaFim <= abertura || pausaFim > fecho) {
+        if (feedbackHorarios) {
+          feedbackHorarios.textContent = 'O fim da pausa deve estar entre a abertura e fecho.';
+          feedbackHorarios.className = 'feedback erro';
+        }
+        return;
+      }
+    }
+
+    try {
+      const barbeariaRef = doc(db, 'barbearias', BARBEARIA_ID);
+      await updateDoc(barbeariaRef, {
+        configHorarios: {
+          abertura,
+          fecho,
+          intervaloMinutos,
+          pausaInicio,
+          pausaFim
+        }
+      });
+
+      if (feedbackHorarios) {
+        feedbackHorarios.textContent = 'Horários atualizados com sucesso.';
+        feedbackHorarios.className = 'feedback sucesso';
+      }
+    } catch (erro) {
+      console.error('Erro ao guardar configuração de horários:', erro);
+      if (feedbackHorarios) {
+        feedbackHorarios.textContent = 'Não foi possível guardar os horários.';
+        feedbackHorarios.className = 'feedback erro';
+      }
     }
   });
 });

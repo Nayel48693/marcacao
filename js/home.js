@@ -65,6 +65,9 @@ let perfilDados = {
   avatarUrl: ''
 };
 
+// Configuração de horários da barbearia (carregada do Firestore)
+let configHorariosBarbearia = null;
+
 function mostrarFeedback(mensagem, tipo = 'erro', elemento = feedback) {
   if (!elemento) return;
   elemento.textContent = mensagem;
@@ -184,11 +187,73 @@ function bloquearEdicaoOuCancelamentoSeProximaHora(dadosMarcacao) {
   return false;
 }
 
+// Gera os slots de horário baseado na configuração (abertura, fecho, intervalo, pausa)
+function gerarSlotsHorario(config) {
+  const cfg = config || {
+    abertura: '09:00',
+    fecho: '18:00',
+    intervaloMinutos: 60,
+    pausaInicio: '',
+    pausaFim: ''
+  };
+
+  const slots = [];
+  const [hIni, mIni] = cfg.abertura.split(':').map(Number);
+  const [hFim, mFim] = cfg.fecho.split(':').map(Number);
+
+  let minutos = hIni * 60 + mIni;
+  const minutosFim = hFim * 60 + mFim;
+
+  while (minutos < minutosFim) {
+    const h = String(Math.floor(minutos / 60)).padStart(2, '0');
+    const m = String(minutos % 60).padStart(2, '0');
+    const horaStr = `${h}:${m}`;
+
+    const dentroDaPausa =
+      cfg.pausaInicio && cfg.pausaFim && horaStr >= cfg.pausaInicio && horaStr < cfg.pausaFim;
+
+    if (!dentroDaPausa) {
+      slots.push(horaStr);
+    }
+
+    minutos += cfg.intervaloMinutos;
+  }
+
+  return slots;
+}
+
+// Carrega a configuração de horários do documento da barbearia
+async function carregarConfigHorarios() {
+  try {
+    const barbeariaRef = doc(db, 'barbearias', BARBEARIA_ID);
+    const barbeariaSnap = await getDoc(barbeariaRef);
+
+    if (barbeariaSnap.exists()) {
+      const dados = barbeariaSnap.data();
+      if (dados.configHorarios) {
+        configHorariosBarbearia = dados.configHorarios;
+        return;
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao carregar configuração de horários:', err);
+  }
+
+  // Fallback para defaults se não existir configuração
+  configHorariosBarbearia = {
+    abertura: '09:00',
+    fecho: '18:00',
+    intervaloMinutos: 60,
+    pausaInicio: '',
+    pausaFim: ''
+  };
+}
+
 // Preenche o select de horas, saltando as horas ocupadas se fornecidas
 async function preencherHoras(horasOcupadas = []) {
   if (!horaSelect) return;
   horaSelect.innerHTML = '<option value="">Escolhe uma hora</option>';
-  const horarios = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'];
+  const horarios = gerarSlotsHorario(configHorariosBarbearia);
 
   const hoje = new Date();
   const dataHojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
@@ -547,6 +612,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await registrarServiceWorker();
   configurarDataMinima();
+  await carregarConfigHorarios();
   preencherHoras();
   await carregarServicos();
 

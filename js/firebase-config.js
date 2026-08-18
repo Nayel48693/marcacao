@@ -15,7 +15,7 @@ const firebaseConfig = {
   appId: "1:298508942351:web:d3c83b788f0b3889fbb77a",
 };
 
-export const BARBEARIA_ID = '298508942351';
+export const BARBEARIA_ID = 'mcmPrHhM3e64l5VziNNM';
 export const VAPID_KEY = 'BMWM-UkYc43k9bwAIR_y0dr1lqPOnUUqUwZKcJmyLjvlRUWi3zXJnt8M6QGLjWkVFSqKPtyqJlnVNMh_U8_LQwg';
 
 const app = initializeApp(firebaseConfig);

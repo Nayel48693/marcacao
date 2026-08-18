@@ -67,6 +67,45 @@
             <div id="marcacoesList" class="table-list"></div>
             <a class="btn btn-secondary btn-block" href="./marcacoes-admin.html">Ver todas as marcações</a>
           </div>
+
+          <div class="admin-card">
+            <div class="card-header">
+              <p class="eyebrow">Configuração</p>
+              <h2>Horários de funcionamento</h2>
+            </div>
+            <form id="horariosForm" class="convite-form">
+              <label class="field">
+                <span>Abertura</span>
+                <input id="horarioAberturaInput" type="time" required />
+              </label>
+              <label class="field">
+                <span>Fecho</span>
+                <input id="horarioFechoInput" type="time" required />
+              </label>
+              <label class="field">
+                <span>Intervalo entre marcações</span>
+                <select id="intervaloMinutosInput" required>
+                  <option value="15">15 minutos</option>
+                  <option value="20">20 minutos</option>
+                  <option value="30">30 minutos</option>
+                  <option value="45">45 minutos</option>
+                  <option value="60">60 minutos</option>
+                </select>
+              </label>
+              <div class="grid-2">
+                <label class="field">
+                  <span>Início da pausa (opcional)</span>
+                  <input id="pausaInicioInput" type="time" />
+                </label>
+                <label class="field">
+                  <span>Fim da pausa (opcional)</span>
+                  <input id="pausaFimInput" type="time" />
+                </label>
+              </div>
+              <div id="feedbackHorarios" class="feedback" aria-live="polite"></div>
+              <button class="btn btn-primary btn-block" type="submit">Guardar horários</button>
+            </form>
+          </div>
         </div>
 
         <div id="feedbackPainel" class="feedback" aria-live="polite"></div>
