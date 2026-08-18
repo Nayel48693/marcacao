@@ -7,6 +7,9 @@ const usuarioRole = document.getElementById('usuarioRole');
 const barbeariaNome = document.getElementById('barbeariaNome');
 const estatisticasList = document.getElementById('estatisticasList');
 const convitesList = document.getElementById('convitesList');
+const conviteForm = document.getElementById('conviteForm');
+const conviteTelefoneInput = document.getElementById('conviteTelefoneInput');
+const btnEnviarConvite = document.getElementById('btnEnviarConvite');
 const marcacoesList = document.getElementById('marcacoesList');
 const feedbackPainel = document.getElementById('feedbackPainel');
 const btnLogout = document.getElementById('btnLogoutPainel');
@@ -43,15 +46,6 @@ function criarLinhaConvite(lista, conviteId, dados) {
   texto.innerHTML = `<strong>${dados.telefoneConvidado}</strong><span class="status-tag ${dados.status}">${dados.status.replace(/\b\w/g, (l) => l.toUpperCase())}</span>`;
 
   linha.appendChild(texto);
-
-  if (dados.status === 'pendente') {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn-small';
-    btn.textContent = 'Aceitar convite';
-    btn.addEventListener('click', () => aceitarConvite(conviteId));
-    linha.appendChild(btn);
-  }
 
   lista.appendChild(linha);
 }
@@ -165,26 +159,7 @@ async function carregarMarcacoesRecentes() {
 }
 
 async function convidarFuncionario() {
-  const telefone = prompt('Telefone do funcionário (9 dígitos sem +351):');
-  if (!telefone || telefone.trim().length !== 9) {
-    mostrarFeedback('Insere um telefone válido com 9 dígitos.', 'erro');
-    return;
-  }
-
-  try {
-    await addDoc(collection(db, 'convitesFuncionario'), {
-      barbeariaId: BARBEARIA_ID,
-      telefoneConvidado: telefone.trim(),
-      status: 'pendente',
-      criadoEm: serverTimestamp()
-    });
-
-    mostrarFeedback('Convite enviado com sucesso.', 'sucesso');
-    carregarConvites();
-  } catch (erro) {
-    console.error('Erro ao convidar funcionário:', erro);
-    mostrarFeedback('Não foi possível enviar o convite.', 'erro');
-  }
+  // Esta função deixou de usar prompt; manter por compatibilidade.
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -217,5 +192,28 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = './login.html';
   });
 
-  btnConvidar?.addEventListener('click', convidarFuncionario);
+  // Enviar convite usando o formulário inline
+  btnEnviarConvite?.addEventListener('click', async () => {
+    const telefone = conviteTelefoneInput?.value?.trim();
+    if (!telefone || telefone.length !== 9) {
+      mostrarFeedback('Insere um telefone válido com 9 dígitos.', 'erro');
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'convitesFuncionario'), {
+        barbeariaId: BARBEARIA_ID,
+        telefoneConvidado: telefone,
+        status: 'pendente',
+        criadoEm: serverTimestamp()
+      });
+
+      mostrarFeedback('Convite enviado com sucesso.', 'sucesso');
+      conviteTelefoneInput.value = '';
+      carregarConvites();
+    } catch (erro) {
+      console.error('Erro ao convidar funcionário:', erro);
+      mostrarFeedback('Não foi possível enviar o convite.', 'erro');
+    }
+  });
 });

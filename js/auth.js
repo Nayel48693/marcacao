@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
-import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+import { doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
 import { auth, db, BARBEARIA_ID, serverTimestamp } from './firebase-config.js';
 import { validarTelefonePT, senhasCoincidem, senhaForte } from './validacao.js';
 
@@ -26,6 +26,19 @@ async function obterConviteFuncionario(telefone) {
   return !convitesSnap.empty;
 }
 
+// Obtém convite pendente para um telefone (retorna o documento ou null)
+async function obterConvitePendente(telefone) {
+  const convitesRef = collection(db, 'convitesFuncionario');
+  const convitesQuery = query(
+    convitesRef,
+    where('barbeariaId', '==', BARBEARIA_ID),
+    where('telefoneConvidado', '==', telefone),
+    where('status', '==', 'pendente')
+  );
+  const convitesSnap = await getDocs(convitesQuery);
+  return convitesSnap.empty ? null : convitesSnap.docs[0];
+}
+
 export async function registarUtilizador(telefone, senha) {
   const telefoneLimpo = telefone.replace(/\s|-/g, '');
   const elementoFeedback = document.getElementById('feedbackRegisto');
@@ -48,8 +61,9 @@ export async function registarUtilizador(telefone, senha) {
   try {
     const emailFicticio = construirEmailFicticio(telefoneLimpo);
     const credenciais = await createUserWithEmailAndPassword(auth, emailFicticio, senha);
-    const invitationAccepted = await obterConviteFuncionario(telefoneLimpo);
-    const role = invitationAccepted ? 'funcionario' : 'cliente';
+    // Verifica se existe convite pendente: se houver, marca-o como aceite (registo implica aceite)
+    const convitePendente = await obterConvitePendente(telefoneLimpo);
+    const role = convitePendente ? 'funcionario' : 'cliente';
 
     try {
       await setDoc(doc(db, 'utilizadores', credenciais.user.uid), {
@@ -58,6 +72,15 @@ export async function registarUtilizador(telefone, senha) {
         barbeariaId: BARBEARIA_ID,
         criadoEm: serverTimestamp()
       });
+
+      // Se havia um convite pendente, atualiza o seu status para aceite
+      if (convitePendente) {
+        try {
+          await updateDoc(doc(db, 'convitesFuncionario', convitePendente.id), { status: 'aceite' });
+        } catch (err) {
+          console.error('Erro ao atualizar convite para aceite no registo:', err);
+        }
+      }
 
       mostrarFeedback(elementoFeedback, 'Conta criada com sucesso! A carregar a home...', 'sucesso');
       window.location.href = 'home.html';

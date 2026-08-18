@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html, body {
+        background: #060606;
+        color: #f5f5f5;
+        margin: 0;
+      }
+    </style>
+    <title>Marcações — Admin</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" /></noscript>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="form-card">
+        <p class="eyebrow">Marcações</p>
+        <h1>Marcações — Administração</h1>
+        <p>Lista completa de marcações para esta barbearia. Usa os filtros e altera estados conforme necessário.</p>
+
+        <div class="field">
+          <label>Filtrar por estado</label>
+          <select id="filtroEstado">
+            <option value="todas">Todas</option>
+            <option value="pendente">Pendente</option>
+            <option value="confirmada">Confirmada</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+
+        <div id="listaMarcacoesAdmin" class="table-list"></div>
+        <a class="btn btn-secondary btn-block" href="./painel.html">Voltar</a>
+      </section>
+    </main>
+
+    <script type="module">
+      import { db, BARBEARIA_ID } from '../js/firebase-config.js';
+      import { collection, query, where, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+
+      const lista = document.getElementById('listaMarcacoesAdmin');
+      const filtro = document.getElementById('filtroEstado');
+
+      async function carregar() {
+        lista.innerHTML = '';
+        const estado = filtro.value;
+        const q = query(collection(db, 'marcacoes'), where('barbeariaId', '==', BARBEARIA_ID));
+        const snap = await getDocs(q);
+        if (snap.empty) return (lista.innerHTML = '<p>Nenhuma marcação encontrada.</p>');
+
+        snap.forEach((docSnap) => {
+          const dados = docSnap.data();
+          if (estado !== 'todas' && dados.status !== estado) return;
+          const row = document.createElement('div');
+          row.className = 'table-row';
+          row.innerHTML = `<div><strong>${dados.nomeCliente}</strong><div>${dados.servico} — ${dados.data} ${dados.hora}</div></div>`;
+          const actions = document.createElement('div');
+          const btnPendente = document.createElement('button');
+          btnPendente.className = 'btn btn-small';
+          btnPendente.textContent = 'Pendente';
+          btnPendente.addEventListener('click', async () => {
+            await updateDoc(doc(db, 'marcacoes', docSnap.id), { status: 'pendente' });
+            carregar();
+          });
+          const btnConfirmada = document.createElement('button');
+          btnConfirmada.className = 'btn btn-small';
+          btnConfirmada.textContent = 'Confirmada';
+          btnConfirmada.addEventListener('click', async () => {
+            await updateDoc(doc(db, 'marcacoes', docSnap.id), { status: 'confirmada' });
+            carregar();
+          });
+          const btnCancelada = document.createElement('button');
+          btnCancelada.className = 'btn btn-small';
+          btnCancelada.textContent = 'Cancelada';
+          btnCancelada.addEventListener('click', async () => {
+            await updateDoc(doc(db, 'marcacoes', docSnap.id), { status: 'cancelada' });
+            carregar();
+          });
+          actions.appendChild(btnPendente);
+          actions.appendChild(btnConfirmada);
+          actions.appendChild(btnCancelada);
+          row.appendChild(actions);
+          lista.appendChild(row);
+        });
+      }
+
+      filtro.addEventListener('change', carregar);
+      carregar();
+    </script>
+  </body>
+</html>

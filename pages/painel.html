@@ -3,14 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html, body {
+        background: #060606;
+        color: #f5f5f5;
+        margin: 0;
+      }
+    </style>
     <title>Barbearia Feitosa | Painel Admin</title>
     <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" /></noscript>
     <link rel="stylesheet" href="../css/style.css" />
   </head>
   <body>
+    <!-- dev-cache-bust: v=1 — aumenta este número sempre que precisares de forçar reload em dev -->
     <main class="page-shell">
       <section class="admin-shell">
         <header class="admin-header">
@@ -38,7 +47,16 @@
               <h2>Convites</h2>
             </div>
             <div id="convitesList" class="table-list"></div>
-            <button class="btn btn-primary btn-block" id="btnConvidarFuncionario" type="button">Convidar funcionário</button>
+            <form id="conviteForm" class="convite-form">
+              <label class="field">
+                <span>Telefone do funcionário</span>
+                <div class="phone-input">
+                  <span class="prefix">+351</span>
+                  <input id="conviteTelefoneInput" type="text" maxlength="9" placeholder="912345678" />
+                </div>
+              </label>
+              <button class="btn btn-primary btn-block" id="btnEnviarConvite" type="button">Enviar convite</button>
+            </form>
           </div>
 
           <div class="admin-card">
@@ -47,6 +65,7 @@
               <h2>Recentes</h2>
             </div>
             <div id="marcacoesList" class="table-list"></div>
+            <a class="btn btn-secondary btn-block" href="./marcacoes-admin.html">Ver todas as marcações</a>
           </div>
         </div>
 
@@ -54,6 +73,6 @@
       </section>
     </main>
 
-    <script type="module" src="../js/painel.js"></script>
+    <script type="module" src="../js/painel.js?v=1"></script>
   </body>
 </html>

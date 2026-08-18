@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html, body {
+        background: #060606;
+        color: #f5f5f5;
+        margin: 0;
+      }
+    </style>
+    <title>Apoio | Barbearia Feitosa</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" /></noscript>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="form-card">
+        <p class="eyebrow">Apoio</p>
+        <h1>Precisas de ajuda?</h1>
+        <p>Envia-nos uma mensagem e responderemos assim que possível.</p>
+
+        <form id="apoioForm" action="https://formspree.io/f/mbdvdepb" method="POST">
+          <div class="field">
+            <span>Nome</span>
+            <input type="text" name="nome" placeholder="O teu nome" required />
+          </div>
+          <div class="field">
+            <span>Email</span>
+            <input type="email" name="email" placeholder="o-teu@email.com" required />
+          </div>
+          <div class="field">
+            <span>Mensagem</span>
+            <textarea name="mensagem" rows="4" placeholder="Escreve a tua mensagem..." required></textarea>
+          </div>
+          <div id="feedbackApoio" class="feedback" aria-live="polite"></div>
+          <button class="btn btn-primary btn-block btn-compact" type="submit">Enviar mensagem</button>
+          <a class="btn btn-secondary btn-block btn-compact" href="./home.html">Voltar</a>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="../js/home.js?v=1"></script>
+  </body>
+</html>

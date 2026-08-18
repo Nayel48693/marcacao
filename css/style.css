@@ -29,6 +29,10 @@ a {
   text-decoration: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .hero,
 .page-shell {
   min-height: 100vh;
@@ -109,7 +113,7 @@ a {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 .admin-header {
@@ -133,7 +137,7 @@ a {
 .admin-grid {
   display: grid;
   grid-template-columns: 1.35fr 0.85fr;
-  gap: 24px;
+  gap: 36px; /* aumenta espaçamento entre cards */
 }
 
 .admin-card {
@@ -149,7 +153,8 @@ a {
 
 .card-highlight {
   background: linear-gradient(180deg, rgba(201, 162, 39, 0.12), rgba(18, 18, 18, 0.95));
-  border-color: rgba(201, 162, 39, 0.3);
+  border: 2px solid rgba(201, 162, 39, 0.9); /* destaque dourado mais visível */
+  box-shadow: 0 10px 30px rgba(201, 162, 39, 0.06);
 }
 
 .stats-grid {
@@ -210,6 +215,22 @@ a {
 
 .status-tag.aceite {
   background: #3ddc97;
+}
+
+.status-tag.confirmada {
+  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+}
+
+.status-tag.concluida {
+  background: #3ddc97;
+}
+
+.status-tag.cancelada {
+  background: var(--danger);
+}
+
+.status-tag.adiada {
+  background: rgba(180,180,180,0.9);
 }
 
 .btn-small {
@@ -291,7 +312,8 @@ form {
   font-weight: 600;
 }
 
-input {
+input,
+textarea {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -301,7 +323,13 @@ input {
   color: var(--text);
 }
 
-input:focus {
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
   outline: 2px solid rgba(201, 162, 39, 0.25);
   border-color: var(--gold);
 }
@@ -381,6 +409,87 @@ input:focus {
   margin-top: 16px;
 }
 
+/* Dropdown customizado */
+.select-hidden {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+.custom-dropdown {
+  position: relative;
+}
+
+.custom-dropdown-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.custom-dropdown-button .arrow {
+  margin-left: 12px;
+  color: var(--muted);
+}
+
+/* garante cursor pointer apenas para o botão dentro do field */
+.field .custom-dropdown-button { cursor: pointer; }
+
+.custom-dropdown-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  max-height: 220px;
+  overflow: auto;
+  z-index: 60;
+  display: none;
+}
+
+.custom-dropdown-item {
+  padding: 10px 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.custom-dropdown-item:hover,
+.custom-dropdown-item.active {
+  background: rgba(201, 162, 39, 0.12);
+  color: #111;
+}
+
+.custom-dropdown-item.placeholder {
+  color: var(--muted);
+}
+
+/* Botões compactos para o form de agendar */
+.btn-compact {
+  max-width: 260px;
+  margin: 8px auto 0 auto;
+  padding: 10px 20px;
+  height: 44px;
+  display: block;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+
+
 @media (max-width: 960px) {
   .home-grid,
   .admin-grid {
@@ -459,8 +568,8 @@ input:focus {
 .profile-summary {
   display: grid;
   gap: 18px;
+  position: relative;
 }
-
 .profile-summary-card {
   display: flex;
   align-items: center;
@@ -548,13 +657,40 @@ input:focus {
 }
 
 .site-footer {
-  display: grid;
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.footer-copyright {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
-  padding: 28px;
-  margin-top: 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 24px;
+}
+
+.footer-links a {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-links a:hover {
+  color: var(--gold-2);
 }
 
 @media (max-width: 960px) {
@@ -577,6 +713,11 @@ input:focus {
   .btn-small {
     width: 100%;
   }
+
+  .footer-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .section-card {
@@ -590,24 +731,6 @@ input:focus {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.social-links {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.social-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  font-weight: 600;
-}
-
 .client-grid {
   display: grid;
   grid-template-columns: 0.95fr 1.35fr;
@@ -617,4 +740,233 @@ input:focus {
 .home-panel {
   display: grid;
   gap: 24px;
+}
+
+/* Hero maior */
+.hero-name {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  margin: 0.2rem 0 0.4rem;
+  letter-spacing: -1px;
+}
+
+.hero-sub {
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* Profile chip */
+.profile-chip {
+  justify-self: end;
+  position: relative;
+}
+
+.profile-chip-btn {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+.profile-chip-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(201,162,39,0.12), rgba(201,162,39,0.06));
+}
+
+.profile-chip-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  border-radius: 50%;
+}
+
+.chip-initials {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-weight: 700;
+  color: #111;
+  background: linear-gradient(180deg, var(--gold), var(--gold-2));
+}
+
+/* Estilos para upload circular de avatar usados em pages/perfil.html */
+.avatar-upload-circle {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(201,162,39,0.06), rgba(18,18,18,0.02));
+  border: 1px solid var(--border);
+}
+
+.avatar-preview-inner {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.avatar-preview-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.avatar-upload-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Utilitário para esconder visualmente elementos mantendo acessibilidade */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 160px;
+  box-shadow: var(--shadow);
+  display: none;
+  z-index: 30;
+}
+
+.profile-dropdown.open {
+  display: block;
+}
+
+.profile-dropdown .dropdown-item {
+  display: block;
+  padding: 8px 10px;
+  color: var(--text);
+  text-align: left;
+  background: transparent;
+  border: none;
+}
+
+.profile-dropdown .dropdown-item:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.action-row {
+  display: flex;
+  gap: 12px;
+}
+
+.home-content .action-row {
+  justify-content: center;
+}
+
+.home-content .action-row .action-btn {
+  flex: 0 0 auto;
+  max-width: 280px;
+}
+
+.action-btn {
+  flex: 1 1 0;
+  text-align: center;
+  padding: 16px 18px;
+  font-size: 1.05rem;
+}
+
+/* Banner de convite (na home) */
+.invite-banner {
+  background: linear-gradient(90deg, rgba(201,162,39,0.12), rgba(18,18,18,0.9));
+  border: 1px solid rgba(201,162,39,0.25);
+  padding: 12px 18px;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+.invite-banner-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.invite-actions { display: flex; gap: 8px; }
+
+.avatar-field {
+  align-items: center;
+}
+
+.avatar-upload-circle {
+  position: relative;
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.12), rgba(201, 162, 39, 0.06));
+  border: 1px solid var(--border);
+}
+
+.avatar-preview-inner {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.avatar-preview-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-upload-hint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar-upload-circle:hover .avatar-upload-hint {
+  opacity: 1;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
