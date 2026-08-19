@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Serviços — Admin</title>
+    <link rel="icon" type="image/jpeg" href="../assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" /></noscript>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="form-card">
+        <!-- Seta de regresso ao painel de administração -->
+        <a href="./painel.html" class="back-arrow" aria-label="Voltar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </a>
+        <!-- Botão para mostrar ou esconder a lista de serviços existentes -->
+        <button id="btnToggleListaServicos" class="corner-icon-btn corner-icon-right" aria-label="Ver serviços" aria-expanded="false" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+
+        <div class="admin-header-center">
+          <p class="eyebrow">Serviços</p>
+          <h1>Gerir Serviços</h1>
+        </div>
+
+        <!-- O formulário é a vista inicial e alterna com a lista de serviços. -->
+        <form id="servicoForm" class="service-form">
+          <label class="field">
+            <span>Nome do serviço</span>
+            <input id="nomeServicoInput" type="text" required />
+          </label>
+          <label class="field">
+            <span>Preço (€)</span>
+            <input id="precoServicoInput" type="number" step="0.01" min="0" required />
+          </label>
+          <button class="btn btn-primary btn-block" type="submit">Adicionar serviço</button>
+        </form>
+
+        <div id="feedbackServicos" class="feedback" aria-live="polite"></div>
+        <!-- A lista começa escondida e é mostrada apenas pelo botão de menu. -->
+        <div id="listaServicos" class="table-list service-list hidden"></div>
+      </section>
+    </main>
+
+    <script type="module" src="../js/servicos-admin.js"></script>
+  </body>
+</html>

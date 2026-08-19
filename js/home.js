@@ -1,7 +1,7 @@
 import { auth, db, BARBEARIA_ID, serverTimestamp, obterTokenNotificacoes } from './firebase-config.js';
 import { createDropdown } from './dropdown.js';
 import { signOut } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
-import { doc, getDoc, collection, addDoc, updateDoc, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+import { doc, getDoc, collection, addDoc, updateDoc, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
 import { validarTelefonePT } from './validacao.js';
 
 // Cloudinary (substitua pelos seus valores) - mantidos comentados para o utilizador preencher
@@ -58,6 +58,9 @@ const upcomingList = document.getElementById('upcomingList');
 const historyList = document.getElementById('historyList');
 
 let marcacaoEditId = null;
+let marcacaoDataOriginal = null;
+let marcacaoServicoOriginal = null;
+let marcacaoHoraOriginal = null;
 
 let perfilDados = {
   nome: '',
@@ -148,6 +151,23 @@ function aplicarDadosPerfil(dados) {
   telefoneInput?.setAttribute('value', dados.telefone || '');
   nomePerfilInput?.setAttribute('value', dados.nome || '');
   avatarUrlInput?.setAttribute('value', dados.avatarUrl || '');
+
+  // Recupera a foto guardada no Firestore ao abrir a página de perfil.
+  if (avatarPreview) {
+    if (dados.avatarUrl) {
+      avatarPreview.innerHTML = `<img src="${dados.avatarUrl}" alt="Foto de perfil"/>`;
+    } else {
+      const iniciais = (dados.nome || '')
+        .split(' ')
+        .filter(Boolean)
+        .map((parte) => parte[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase() || '?';
+      avatarPreview.innerHTML = `<span class="chip-initials">${iniciais}</span>`;
+    }
+  }
+
   atualizarAvatar(dados);
 }
 
@@ -326,24 +346,34 @@ async function carregarServicos() {
 
     if (barbeariaSnap.exists()) {
       const dados = barbeariaSnap.data();
-      const servicos = dados?.servicos || [];
       const horarioFuncionamento = dados?.horarioFuncionamento;
 
       preencherHorarioInfo(horarioFuncionamento);
+    }
 
-      if (Array.isArray(servicos) && servicos.length > 0) {
-        servicos.forEach((item) => {
-          const valor = typeof item === 'string' ? item : item?.nome || JSON.stringify(item);
-          criarOpcao(servicoSelect, valor, valor);
-        });
-        return;
-      }
+    const servicosQuery = query(
+      collection(db, 'barbearias', BARBEARIA_ID, 'servicos'),
+      where('ativo', '==', true),
+      orderBy('nome')
+    );
+    const servicosSnap = await getDocs(servicosQuery);
+
+    if (!servicosSnap.empty) {
+      servicosSnap.forEach((documento) => {
+        const servico = documento.data();
+        const nome = servico.nome || '';
+        const preco = Number(servico.preco || 0);
+        criarOpcao(
+          servicoSelect,
+          `${nome} — ${preco.toFixed(2).replace('.', ',')} €`,
+          nome
+        );
+      });
+      return;
     }
 
     preencherHorarioInfo(null);
-    ['Corte clássico', 'Barba', 'Corte + barba'].forEach((item) => {
-      criarOpcao(servicoSelect, item, item);
-    });
+    servicoSelect.innerHTML = '<option value="" disabled>Nenhum serviço disponível de momento</option>';
   } catch (erro) {
     console.error('Erro ao carregar serviços:', erro);
     servicoSelect.innerHTML = '<option value="">Erro ao carregar serviços</option>';
@@ -394,7 +424,15 @@ async function registrarMarcacao(evento) {
   if (agendarSubmitBtn?.disabled) return;
   if (agendarSubmitBtn) agendarSubmitBtn.disabled = true;
 
-  const { servico, data, hora, nome, telefone } = obterValoresMarcacao();
+  let { servico, data, hora, nome, telefone } = obterValoresMarcacao();
+
+  // Em edição, mantém os valores originais caso o dropdown personalizado ainda
+  // não tenha sincronizado o select nativo usado pela validação.
+  if (marcacaoEditId) {
+    servico = servico || marcacaoServicoOriginal || '';
+    data = data || marcacaoDataOriginal || '';
+    hora = hora || marcacaoHoraOriginal || '';
+  }
 
   // validações obrigatórias comuns
   if (!servico || !data || !hora) {
@@ -436,7 +474,11 @@ async function registrarMarcacao(evento) {
 
   try {
     if (marcacaoEditId) {
-      await updateDoc(doc(db, 'marcacoes', marcacaoEditId), { servico, data, hora });
+      const dadosParaAtualizar = { servico, data, hora };
+      if (marcacaoDataOriginal && data !== marcacaoDataOriginal) {
+        dadosParaAtualizar.status = 'adiada';
+      }
+      await updateDoc(doc(db, 'marcacoes', marcacaoEditId), dadosParaAtualizar);
 
       const userRef = doc(db, 'utilizadores', usuario.uid);
       await updateDoc(userRef, {
@@ -449,7 +491,10 @@ async function registrarMarcacao(evento) {
       if (telefonePerfil) telefonePerfil.textContent = `+351 ${telefone}`;
       if (telefonePerfilReadOnly) telefonePerfilReadOnly.textContent = telefone;
 
-      mostrarFeedback('Marcação atualizada com sucesso.', 'sucesso', feedbackAgendar || feedback);
+      const mensagemSucesso = dadosParaAtualizar.status === 'adiada'
+        ? 'Marcação adiada com sucesso. Vais encontrá-la em "Histórico".'
+        : 'Marcação atualizada com sucesso.';
+      mostrarFeedback(mensagemSucesso, 'sucesso', feedbackAgendar || feedback);
       form?.reset();
       agendarForm?.reset();
       setTimeout(() => { window.location.href = './home.html'; }, 900);
@@ -697,6 +742,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             mostrarFeedback('Marcação não encontrada.', 'erro', feedbackAgendar || feedback);
           } else {
             const dadosMarc = marcSnap.data();
+            marcacaoDataOriginal = dadosMarc.data || null;
+            marcacaoServicoOriginal = dadosMarc.servico || null;
+            marcacaoHoraOriginal = dadosMarc.hora || null;
             if (dadosMarc.clienteId !== usuario.uid) {
               mostrarFeedback('Marcação não encontrada.', 'erro', feedbackAgendar || feedback);
             } else {
@@ -726,6 +774,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 horaSelect.value = dadosMarc.hora || '';
                 horaSelect.dispatchEvent(new Event('change'));
               }
+
+              // Garante que os valores originais permanecem selecionados após
+              // a reconstrução dos horários e dos dropdowns personalizados.
+              if (servicoSelect) {
+                servicoSelect.value = dadosMarc.servico || '';
+                servicoSelect.dispatchEvent(new Event('change'));
+              }
+              if (dataInput) dataInput.value = dadosMarc.data || '';
 
               bloquearEdicaoOuCancelamentoSeProximaHora(dadosMarc);
 
@@ -839,10 +895,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnNotificacoes?.addEventListener('click', pedirPermissaoNotificacoes);
   // logout: suporta o botão antigo e o novo dropdown
   btnLogout?.addEventListener('click', async () => {
+    // Confirma o logout antes de terminar a sessão do cliente.
+    if (!confirm('Tens a certeza que queres sair?')) {
+      return;
+    }
     await signOut(auth);
     window.location.href = './login.html';
   });
   dropdownLogout?.addEventListener('click', async () => {
+    // Confirma o logout também quando é feito pelo menu do perfil.
+    if (!confirm('Tens a certeza que queres sair?')) {
+      return;
+    }
     await signOut(auth);
     window.location.href = './login.html';
   });
@@ -1003,9 +1067,49 @@ async function carregarMarcacoesUsuario(uid) {
       row.className = 'table-row';
       const performer = it.funcionarioId ? funcMap[it.funcionarioId] || 'Funcionário' : 'Barbearia Feitosa';
       const dtText = it.data && it.hora ? `${it.data} ${it.hora}` : 'Data/Hora não definida';
-      row.innerHTML = `<div><strong>${dtText}</strong><div>${it.servico} — ${performer}</div></div><div class="status-tag ${it.status}">${it.status.replace(/\b\w/g, (l)=>l.toUpperCase())}</div>`;
+      const informacao = document.createElement('div');
+      const badge = document.createElement('span');
+      informacao.innerHTML = `<strong>${dtText}</strong><div>${it.servico} — ${performer}</div>`;
+      badge.className = `status-tag ${it.status}`;
+      badge.textContent = {
+        pendente: 'Pendente',
+        confirmada: 'Confirmada',
+        concluida: 'Concluída',
+        cancelada: 'Cancelada',
+        adiada: 'Adiada'
+      }[it.status] || it.status;
+      row.append(informacao, badge);
+
       // Só adiciona listener/click para próximas marcações (pendente ou confirmada)
       if (isUpcoming && (it.status === 'pendente' || it.status === 'confirmada')) {
+        const actions = document.createElement('div');
+        actions.className = 'row-actions';
+
+        const criarAcao = (texto, novoEstado, confirmarCancelamento = false) => {
+          const botao = document.createElement('button');
+          botao.type = 'button';
+          botao.className = 'btn btn-small';
+          botao.textContent = texto;
+          botao.addEventListener('click', async (evento) => {
+            evento.stopPropagation();
+            if (confirmarCancelamento && !confirm('Tens a certeza que queres cancelar esta marcação?')) return;
+            await updateDoc(doc(db, 'marcacoes', it.id), { status: novoEstado });
+            await carregarMarcacoesUsuario(uid);
+          });
+          return botao;
+        };
+
+        actions.appendChild(criarAcao('Cancelar', 'cancelada', true));
+        const botaoEditar = document.createElement('button');
+        botaoEditar.type = 'button';
+        botaoEditar.className = 'btn btn-small';
+        botaoEditar.textContent = 'Editar';
+        botaoEditar.addEventListener('click', (evento) => {
+          evento.stopPropagation();
+          window.location.href = `./agendar.html?id=${it.id}`;
+        });
+        actions.appendChild(botaoEditar);
+        row.appendChild(actions);
         row.style.cursor = 'pointer';
         row.addEventListener('click', () => {
           window.location.href = `./agendar.html?id=${it.id}`;

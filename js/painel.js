@@ -197,6 +197,23 @@ async function convidarFuncionario() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const cartoes = [...document.querySelectorAll('.admin-card')];
+  const tabs = [...document.querySelectorAll('.tab-item')];
+
+  // Sincroniza o cartão visível com o separador selecionado no telemóvel.
+  function mostrarCartao(targetId, tabAtiva) {
+    cartoes.forEach((cartao) => {
+      cartao.classList.toggle('active-mobile-card', cartao.id === targetId);
+    });
+    tabs.forEach((tab) => tab.classList.toggle('active', tab === tabAtiva));
+  }
+
+  const tabInicial = tabs.find((tab) => tab.dataset.target === 'cardResumo');
+  mostrarCartao('cardResumo', tabInicial);
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => mostrarCartao(tab.dataset.target, tab));
+  });
+
   auth.onAuthStateChanged(async (usuario) => {
     if (!usuario) {
       window.location.href = './login.html';
@@ -222,6 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnLogout?.addEventListener('click', async () => {
+    // Evita terminar a sessão acidentalmente no painel administrativo.
+    if (!confirm('Tens a certeza que queres sair?')) {
+      return;
+    }
     await signOut(auth);
     window.location.href = './login.html';
   });
