@@ -1,8 +1,8 @@
 import { auth, db, BARBEARIA_ID, serverTimestamp, obterTokenNotificacoes } from './firebase-config.js';
 import { createDropdown } from './dropdown.js';
-import { signOut } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
+import { EmailAuthProvider, reauthenticateWithCredential, signOut, updatePassword } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
 import { doc, getDoc, collection, addDoc, updateDoc, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
-import { validarTelefonePT } from './validacao.js';
+import { validarTelefonePT, senhasCoincidem, senhaForte } from './validacao.js';
 
 // Cloudinary (substitua pelos seus valores) - mantidos comentados para o utilizador preencher
 // const CLOUD_NAME = 'SEU_CLOUD_NAME';
@@ -42,6 +42,13 @@ const avatarUrlInput = document.getElementById('avatarUrl');
 const nomePerfilInput = document.getElementById('nomePerfilInput');
 const telefonePerfilInput = document.getElementById('telefonePerfilInput');
 const perfilForm = document.getElementById('perfilForm');
+const btnMostrarAlterarSenha = document.getElementById('btnMostrarAlterarSenha');
+const secaoAlterarSenha = document.getElementById('secaoAlterarSenha');
+const alterarSenhaForm = document.getElementById('alterarSenhaForm');
+const senhaAtualInput = document.getElementById('senhaAtualInput');
+const novaSenhaInput = document.getElementById('novaSenhaInput');
+const confirmarNovaSenhaInput = document.getElementById('confirmarNovaSenhaInput');
+const feedbackSenhaPerfil = document.getElementById('feedbackSenhaPerfil');
 const avatarFileInput = document.getElementById('avatarFile');
 const avatarPreview = document.getElementById('avatarPreview');
 const telefonePerfilReadOnly = document.getElementById('telefonePerfilReadOnly');
@@ -65,7 +72,8 @@ let marcacaoHoraOriginal = null;
 let perfilDados = {
   nome: '',
   telefone: '',
-  avatarUrl: ''
+  avatarUrl: '',
+  role: 'cliente'
 };
 
 // Configuração de horários da barbearia (carregada do Firestore)
@@ -693,7 +701,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      if (dados.role && dados.role !== 'cliente') {
+      // A página de perfil também é partilhada por admins e funcionários.
+      if (dados.role && dados.role !== 'cliente' && !perfilForm) {
         window.location.href = './painel.html';
         return;
       }
@@ -701,7 +710,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       perfilDados = {
         nome: dados.nome || '',
         telefone: dados.telefone || '',
-        avatarUrl: dados.avatarUrl || ''
+        avatarUrl: dados.avatarUrl || '',
+        role: dados.role || 'cliente'
       };
 
       aplicarDadosPerfil(perfilDados);
@@ -885,13 +895,79 @@ document.addEventListener('DOMContentLoaded', async () => {
       perfilDados = { ...perfilDados, nome, avatarUrl };
       aplicarDadosPerfil(perfilDados);
       mostrarFeedback('Perfil atualizado com sucesso.', 'sucesso', feedbackPerfil);
-      const destino = voltarPara === 'agendar' ? './agendar.html' : './home.html';
+      const destino = voltarPara === 'agendar'
+        ? './agendar.html'
+        : ['admin', 'funcionario'].includes(perfilDados.role) ? './painel.html' : './home.html';
       setTimeout(() => { window.location.href = destino; }, 900);
     } catch (erro) {
       console.error('Erro ao atualizar perfil:', erro);
       mostrarFeedback('Não foi possível atualizar o perfil.', 'erro', feedbackPerfil);
     }
   });
+
+  alterarSenhaForm?.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+
+    const senhaAtual = senhaAtualInput?.value || '';
+    const novaSenha = novaSenhaInput?.value || '';
+    const confirmarNovaSenha = confirmarNovaSenhaInput?.value || '';
+    const usuario = auth.currentUser;
+
+    if (!usuario) {
+      mostrarFeedback('A tua sessão terminou. Volta a iniciar sessão.', 'erro', feedbackSenhaPerfil);
+      return;
+    }
+
+    if (!senhaAtual) {
+      mostrarFeedback('Introduz a palavra-passe atual.', 'erro', feedbackSenhaPerfil);
+      return;
+    }
+
+    if (!senhaForte(novaSenha)) {
+      mostrarFeedback('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'erro', feedbackSenhaPerfil);
+      return;
+    }
+
+    if (!senhasCoincidem(novaSenha, confirmarNovaSenha)) {
+      mostrarFeedback('As novas palavras-passe não coincidem.', 'erro', feedbackSenhaPerfil);
+      return;
+    }
+
+    if (!usuario.email) {
+      mostrarFeedback('Não foi possível identificar as credenciais desta conta.', 'erro', feedbackSenhaPerfil);
+      return;
+    }
+
+    try {
+      // Reautentica com o email fictício já usado pelo login por telefone.
+      const credencial = EmailAuthProvider.credential(usuario.email, senhaAtual);
+      await reauthenticateWithCredential(usuario, credencial);
+      await updatePassword(usuario, novaSenha);
+
+      alterarSenhaForm.reset();
+      mostrarFeedback('Palavra-passe alterada com sucesso.', 'sucesso', feedbackSenhaPerfil);
+    } catch (erro) {
+      console.error('Erro ao alterar palavra-passe:', erro);
+      let mensagem = 'Não foi possível alterar a palavra-passe. Tenta novamente.';
+
+      if (erro?.code === 'auth/wrong-password' || erro?.code === 'auth/invalid-credential') {
+        mensagem = 'A palavra-passe atual está incorreta.';
+      } else if (erro?.code === 'auth/requires-recent-login') {
+        mensagem = 'A sessão expirou. Termina a sessão e inicia novamente antes de alterar a palavra-passe.';
+      } else if (erro?.code === 'auth/weak-password') {
+        mensagem = 'A nova palavra-passe deve ter pelo menos 6 caracteres.';
+      }
+
+      mostrarFeedback(mensagem, 'erro', feedbackSenhaPerfil);
+    }
+  });
+
+  // Mostra ou esconde o formulário de palavra-passe sem ocupar espaço por defeito.
+  btnMostrarAlterarSenha?.addEventListener('click', () => {
+    const aberto = secaoAlterarSenha?.classList.toggle('hidden') === false;
+    btnMostrarAlterarSenha.setAttribute('aria-expanded', String(aberto));
+  });
+
   btnNotificacoes?.addEventListener('click', pedirPermissaoNotificacoes);
   // logout: suporta o botão antigo e o novo dropdown
   btnLogout?.addEventListener('click', async () => {

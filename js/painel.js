@@ -13,6 +13,11 @@ const btnEnviarConvite = document.getElementById('btnEnviarConvite');
 const marcacoesList = document.getElementById('marcacoesList');
 const feedbackPainel = document.getElementById('feedbackPainel');
 const btnLogout = document.getElementById('btnLogoutPainel');
+const adminProfileButton = document.getElementById('adminProfileButton');
+const adminProfileDropdown = document.getElementById('adminProfileDropdown');
+const adminProfileName = document.getElementById('adminProfileName');
+const adminProfileImg = document.getElementById('adminProfileImg');
+const adminProfileInitials = document.getElementById('adminProfileInitials');
 const btnConvidar = document.getElementById('btnConvidarFuncionario');
 const horariosForm = document.getElementById('horariosForm');
 const horarioAberturaInput = document.getElementById('horarioAberturaInput');
@@ -26,6 +31,32 @@ function mostrarFeedback(mensagem, tipo = 'erro') {
   if (!feedbackPainel) return;
   feedbackPainel.textContent = mensagem;
   feedbackPainel.className = `feedback ${tipo}`;
+}
+
+function atualizarPerfilAdmin(dados) {
+  const nome = dados.nome || 'Administrador';
+  const avatarUrl = dados.avatarUrl || '';
+  adminProfileName && (adminProfileName.textContent = nome);
+
+  if (avatarUrl && adminProfileImg) {
+    adminProfileImg.src = avatarUrl;
+    adminProfileImg.style.display = 'block';
+    adminProfileInitials && (adminProfileInitials.style.display = 'none');
+    return;
+  }
+
+  adminProfileImg && (adminProfileImg.style.display = 'none');
+  if (adminProfileInitials) {
+    const iniciais = nome
+      .split(' ')
+      .filter(Boolean)
+      .map((parte) => parte[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+    adminProfileInitials.textContent = iniciais || '?';
+    adminProfileInitials.style.display = 'grid';
+  }
 }
 
 function criarItemLista(lista, titulo, valor) {
@@ -110,6 +141,7 @@ async function carregarDadosAdmin(uid) {
 
     usuarioNome.textContent = dados.nome || 'Administrador';
     usuarioRole.textContent = dados.role === 'admin' ? 'Admin' : 'Funcionário';
+    atualizarPerfilAdmin(dados);
 
     const barbeariaRef = doc(db, 'barbearias', BARBEARIA_ID);
     await getDoc(barbeariaRef);
@@ -245,6 +277,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     await signOut(auth);
     window.location.href = './login.html';
+  });
+
+  // Abre e fecha o menu do perfil no navbar administrativo.
+  adminProfileButton?.addEventListener('click', (evento) => {
+    evento.stopPropagation();
+    adminProfileDropdown?.classList.toggle('open');
+    adminProfileButton.setAttribute('aria-expanded', adminProfileDropdown?.classList.contains('open') ? 'true' : 'false');
+  });
+  document.addEventListener('click', () => {
+    adminProfileDropdown?.classList.remove('open');
+    adminProfileButton?.setAttribute('aria-expanded', 'false');
   });
 
   // Enviar convite usando o formulário inline

@@ -29,7 +29,21 @@
             <p id="usuarioRole">Carregando o teu perfil...</p>
             <p class="subtext">Olá, <span id="usuarioNome">Administrador</span>. Aqui geres equipa e marcações.</p>
           </div>
-          <button class="btn btn-secondary" id="btnLogoutPainel">Sair</button>
+          <!-- Perfil do administrador/funcionário no canto direito do navbar. -->
+          <aside class="profile-summary admin-profile-summary" id="adminProfileSummary">
+            <button id="adminProfileButton" class="profile-chip-btn" aria-expanded="false" type="button">
+              <div class="profile-chip-avatar" id="adminProfileAvatar">
+                <img id="adminProfileImg" alt="Avatar" />
+                <span id="adminProfileInitials" class="chip-initials">?</span>
+              </div>
+              <span id="adminProfileName">Administrador</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px; opacity: 0.6;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="profile-dropdown" id="adminProfileDropdown" role="menu">
+              <a class="dropdown-item" href="./perfil.html">Editar perfil</a>
+              <button class="dropdown-item" id="btnLogoutPainel" type="button">Sair</button>
+            </div>
+          </aside>
         </header>
 
         <div class="admin-grid">

@@ -755,6 +755,14 @@ textarea:focus {
   justify-self: end;
   margin-left: auto;
 }
+
+/* No painel, o perfil mantém-se sempre encostado ao lado direito. */
+.admin-profile-summary {
+  justify-self: end;
+  align-self: center;
+  margin-left: auto;
+  margin-right: 0;
+}
 .profile-summary-card {
   display: flex;
   align-items: center;

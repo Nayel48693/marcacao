@@ -53,6 +53,30 @@
           <button class="btn btn-primary btn-block" type="submit">Guardar alterações</button>
           <a class="btn btn-secondary btn-block" href="./home.html">Cancelar</a>
         </form>
+
+        <!-- A alteração de palavra-passe fica disponível apenas quando solicitada. -->
+        <button id="btnMostrarAlterarSenha" class="btn btn-secondary btn-block" type="button" aria-expanded="false" aria-controls="secaoAlterarSenha">Alterar palavra-passe</button>
+
+        <section id="secaoAlterarSenha" class="password-section hidden">
+          <p class="eyebrow">Segurança</p>
+          <h2>Nova palavra-passe</h2>
+          <form id="alterarSenhaForm" novalidate>
+            <label class="field">
+              <span>Palavra-passe atual</span>
+              <input id="senhaAtualInput" type="password" autocomplete="current-password" required />
+            </label>
+            <label class="field">
+              <span>Nova palavra-passe</span>
+              <input id="novaSenhaInput" type="password" autocomplete="new-password" minlength="6" required />
+            </label>
+            <label class="field">
+              <span>Confirmar nova palavra-passe</span>
+              <input id="confirmarNovaSenhaInput" type="password" autocomplete="new-password" minlength="6" required />
+            </label>
+            <div id="feedbackSenhaPerfil" class="feedback" aria-live="polite"></div>
+            <button class="btn btn-primary btn-block" type="submit">Alterar palavra-passe</button>
+          </form>
+        </section>
       </section>
     </main>
     <script type="module" src="../js/home.js?v=1"></script>
